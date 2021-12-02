@@ -1,0 +1,21 @@
+﻿posid,name,abbr
+1,Quarterback,QB
+2,Halfback,HB
+3,Fullback,FB
+4,Guard,OG
+5,Offensive Tackle,OT
+6,Center,C
+7,Tight End,TE
+8,Wide Receiver,WR
+9,Defensive Tackle,DT
+10,Defensive End,DE
+11,Outside Linebacker,OLB
+12,Middle Linebacker,MLB
+13,Free Safety,FS
+14,Strong Safety,SS
+15,Cornerback,CB
+16,Kicker,K
+17,Punter,P
+18,Kick Returner,KR
+19,Punt Returner,PR
+20,Long Snapper,LS
