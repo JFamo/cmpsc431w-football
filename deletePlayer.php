@@ -13,6 +13,11 @@ $dbname = $conf['dbname'];
 $port = $conf['port'];
 
 ?>
+
+<style>
+<?php include './styles.css'; ?>
+</style>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -21,29 +26,44 @@ $port = $conf['port'];
     <body>
 		<p>
 			<?php 
-				echo "Deleting player: " . $_POST["fname"] . " " . $_POST["lname"] . "..."; 
+				echo "Deleting player: " . $_POST["playerid"] .  "..."; 
 				try {
 					// Create PDO
 					$conn = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $password);
 					$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 					// Start transaction
 					$conn->beginTransaction();
-					// Attempt create player
-					$sql1 = "INSERT INTO players (fname, mname, lname, age) VALUES (?,?,?,?)";
-					$st1 = $conn->prepare($sql1);
-					$st1->execute(array($_POST["fname"], $_POST["mname"], $_POST["lname"], $_POST["age"]));
-					$playerid = $conn->lastInsertId();
-					// Attempt to add team
-					$sql2 = "INSERT INTO playerfor (playerid, teamid, fromdate) VALUES (?, ?, NOW())";
-					$st2 = $conn->prepare($sql2);
-					$st2->execute(array($playerid, $_POST["team"]));
-					// Attempt to add position
-					$sql3 = "INSERT INTO playsposition (playerid, posid) VALUES (?, ?)";
-					$st3 = $conn->prepare($sql3);
-					$st3->execute(array($playerid, $_POST["position"]));
+					// Attempt deletion from players
+					$sql = "DELETE FROM players WHERE playerid=?";
+					$st = $conn->prepare($sql);
+					$st->execute(array($_POST["playerid"]));
+					// Attempt deletion from playsposition
+					$sql = "DELETE FROM playsposition WHERE playerid=?";
+					$st = $conn->prepare($sql);
+					$st->execute(array($_POST["playerid"]));
+					// Attempt deletion from playerfor
+					$sql = "DELETE FROM playerfor WHERE playerid=?";
+					$st = $conn->prepare($sql);
+					$st->execute(array($_POST["playerid"]));
+					// Attempt deletion from stats
+					$sql = "DELETE FROM passing WHERE playerid=?";
+					$st = $conn->prepare($sql);
+					$st->execute(array($_POST["playerid"]));
+					$sql = "DELETE FROM rushing WHERE playerid=?";
+					$st = $conn->prepare($sql);
+					$st->execute(array($_POST["playerid"]));
+					$sql = "DELETE FROM receiving WHERE playerid=?";
+					$st = $conn->prepare($sql);
+					$st->execute(array($_POST["playerid"]));
+					$sql = "DELETE FROM defense WHERE playerid=?";
+					$st = $conn->prepare($sql);
+					$st->execute(array($_POST["playerid"]));
+					$sql = "DELETE FROM kicking WHERE playerid=?";
+					$st = $conn->prepare($sql);
+					$st->execute(array($_POST["playerid"]));
 					// Commit transaction
 					$conn->commit();
-					echo "Successfully created new player";
+					echo "Successfully deleted player";
 			?>
 				<p>You will be redirected in 2 seconds</p>
 				<script>

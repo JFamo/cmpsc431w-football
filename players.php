@@ -45,25 +45,27 @@ try {
         <a id="backButton" href="./home.php">Home</a>
         <h1 id="mainTitle">Players</h1>
         <div class="row">
-            <div class="col50" style="overflow-y: scroll;">
+            <div class="col50" style="overflow-y:auto;">
                 <h4 class="subTitle">Current Players</h4>
                 <div class="dataTable">
                     <div class="headerRow">
-                        <span class="dataItem" style="flex:10%;">PlayerID</span>
+                        <span class="dataItem" style="flex:5%;">PlayerID</span>
                         <span class="dataItem" style="flex:20%;">First</span>
                         <span class="dataItem" style="flex:20%;">Middle</span>
                         <span class="dataItem" style="flex:20%;">Last</span>
-                        <span class="dataItem" style="flex:20%;">Position</span>
+                        <span class="dataItem" style="flex:15%;">Position</span>
                         <span class="dataItem" style="flex:10%;">Age</span>
+                        <span class="dataItem" style="flex:10%;">Delete</span>
                     </div>
                     <?php while ($player = $playersResults->fetch()): ?>
                     <div class="dataRow">
-                        <span class="dataItem" style="flex:10%;"><?php echo htmlspecialchars($player['playerid']) ?></span>
+                        <span class="dataItem" style="flex:5%;"><?php echo htmlspecialchars($player['playerid']) ?></span>
                         <span class="dataItem" style="flex:20%;"><?php echo htmlspecialchars($player['fname']) ?></span>
                         <span class="dataItem" style="flex:20%;"><?php echo htmlspecialchars($player['mname']) ?></span>
                         <span class="dataItem" style="flex:20%;"><?php echo htmlspecialchars($player['lname']) ?></span>
-                        <span class="dataItem" style="flex:20%;"><?php echo htmlspecialchars($player['abbr']) ?></span>
+                        <span class="dataItem" style="flex:15%;"><?php echo htmlspecialchars($player['abbr']) ?></span>
                         <span class="dataItem" style="flex:10%;"><?php echo htmlspecialchars($player['age']) ?></span>
+                        <span class="dataItem" style="flex:10%;"><?php echo '<form action="/deletePlayer.php" method="post"><input class="deleteButton" type="submit" value="Delete"><input type="hidden" name="playerid" value="' . htmlspecialchars($player['playerid']) . '"></form>'?></span>
                     </div>
                     <?php endwhile; ?>
                 </div>

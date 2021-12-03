@@ -68,6 +68,19 @@
     background-color: #264deb;
 }
 
+.deleteButton{
+    text-decoration: none;
+    color: #8a1703;
+    transition: 1s all;
+    border:none;
+    background-color:rgba(0,0,0,0);
+}
+
+.deleteButton:hover{
+    color:#de2707;
+    cursor:pointer;
+}
+
 .dataTable{
     display:flex;
     flex-direction: column;
@@ -117,6 +130,10 @@
 
 .dataForm{
 
+}
+
+.dataItem{
+    overflow:hidden;
 }
 
 .dataInput{

@@ -13,6 +13,11 @@ $dbname = $conf['dbname'];
 $port = $conf['port'];
 
 ?>
+
+<style>
+<?php include './styles.css'; ?>
+</style>
+
 <!DOCTYPE html>
 <html>
     <head>
