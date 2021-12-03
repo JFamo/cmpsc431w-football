@@ -31,6 +31,23 @@
     background-color: #264deb;
 }
 
+.formButton{
+    text-decoration: none;
+    padding: 0.5rem;
+    color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    background-color: #1a3396;
+    transition: 1s all;
+    margin-top:0.5rem;
+    margin-bottom:0.5rem;
+}
+
+.formButton:hover{
+    background-color: #264deb;
+    cursor:pointer;
+}
+
 #backButton{
     text-decoration: none;
     padding: 1rem 1rem 1rem 1rem;
@@ -96,4 +113,16 @@
 
 .col50{
     flex:50%;
+}
+
+.dataForm{
+
+}
+
+.dataInput{
+    padding:0.5rem;
+}
+
+.formLabel{
+    margin:0;
 }
