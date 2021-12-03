@@ -1,0 +1,28 @@
+*{
+    font-family: 'Open Sans', sans-serif;
+}
+
+#mainTitle{
+    color: #1a3396;
+}
+
+.menuButton{
+    text-decoration: none;
+    padding: 1rem 1rem 1rem 1rem;
+    color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    background-color: #1a3396;
+    transition: 1s all;
+    margin-top:0.5rem;
+    margin-bottom:0.5rem;
+}
+
+.menu{
+    padding-top:2rem;
+    text-align:center;
+}
+
+.menuButton:hover{
+    background-color: #264deb;
+}
