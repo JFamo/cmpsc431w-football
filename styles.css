@@ -6,6 +6,10 @@
     color: #1a3396;
 }
 
+.subTitle{
+    color:#264deb;
+}
+
 .menuButton{
     text-decoration: none;
     padding: 1rem 1rem 1rem 1rem;
@@ -25,4 +29,71 @@
 
 .menuButton:hover{
     background-color: #264deb;
+}
+
+#backButton{
+    text-decoration: none;
+    padding: 1rem 1rem 1rem 1rem;
+    color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    background-color: #1a3396;
+    transition: 1s all;
+    margin-top:0.5rem;
+    margin-bottom:0.5rem;
+    position:fixed;
+    z-index:99999;
+    top:10px;
+    left:10px;
+}
+
+#backButton:hover{
+    background-color: #264deb;
+}
+
+.dataTable{
+    display:flex;
+    flex-direction: column;
+}
+
+.headerRow{
+    flex:100%;
+    margin-top:0.5rem;
+    margin-left:0.5rem;
+    padding-left:0.5rem;
+    padding-right:0.5rem;
+    padding-top:0.25rem;
+    padding-bottom:0.25rem;
+    border-bottom:1px solid rgba(0,0,0,0.5);
+    height:1.5rem;
+    display:flex;
+    background-color: white;
+}
+
+.dataRow{
+    flex:100%;
+    margin-top:0.5rem;
+    margin-left:0.5rem;
+    padding-left:0.5rem;
+    padding-right:0.5rem;
+    padding-top:0.25rem;
+    padding-bottom:0.25rem;
+    border:1px solid rgba(0,0,0,0.5);
+    border-radius:5px;
+    height:1.5rem;
+    display:flex;
+    background-color: white;
+}
+
+.dataRow:hover{
+    background-color:#DDD;
+}
+
+.row{
+    display:flex;
+    width:100%;
+}
+
+.col50{
+    flex:50%;
 }
