@@ -81,6 +81,19 @@
     cursor:pointer;
 }
 
+.createButton{
+    text-decoration: none;
+    color: #1a3396;
+    transition: 1s all;
+    border:none;
+    background-color:rgba(0,0,0,0);
+}
+
+.createButton:hover{
+    color:#264deb;
+    cursor:pointer;
+}
+
 .dataTable{
     display:flex;
     flex-direction: column;
