@@ -38,7 +38,7 @@ $port = $conf['port'];
 						$st1->execute(array($player["fname"], $player["mname"], $player["lname"], $player["age"]));
 						$playerid = $conn->lastInsertId();
 						// Attempt to add team
-						$sql2 = "INSERT INTO playerfor (playerid, teamid, fromdate) VALUES (?, ?, NOW())";
+						$sql2 = "INSERT INTO activeroster (playerid, teamid) VALUES (?, ?)";
 						$st2 = $conn->prepare($sql2);
 						$st2->execute(array($playerid, $team));
 						// Attempt to add position
@@ -53,7 +53,7 @@ $port = $conf['port'];
 						$st1->execute(array($player["fname"], $player["mname"], $player["lname"], $player["age"]));
 						$playerid = $conn->lastInsertId();
 						// Attempt to add team
-						$sql2 = "INSERT INTO playerfor (playerid, teamid, fromdate) VALUES (?, ?, NOW())";
+						$sql2 = "INSERT INTO activeroster (playerid, teamid) VALUES (?, ?)";
 						$st2 = $conn->prepare($sql2);
 						$st2->execute(array($playerid, $team));
 						// Attempt to add position

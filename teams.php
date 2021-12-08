@@ -21,10 +21,10 @@ else{
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $password);
-    $rosterQuery = "SELECT P.playerid, P.fname, P.mname, P.lname, PO.abbr, P.age, T.teamid FROM players P INNER JOIN playsposition PP ON PP.playerid=P.playerid INNER JOIN positions PO ON PO.posid=PP.posid INNER JOIN playerfor PF ON PF.playerid=P.playerid INNER JOIN teams T ON T.teamid=PF.teamid WHERE T.teamid=? AND PF.untildate IS NULL ORDER BY PO.posid, P.playerid";
+    $rosterQuery = "SELECT P.playerid, P.fname, P.mname, P.lname, PO.abbr, P.age, T.teamid FROM players P INNER JOIN playsposition PP ON PP.playerid=P.playerid INNER JOIN positions PO ON PO.posid=PP.posid INNER JOIN activeroster AR ON AR.playerid=P.playerid INNER JOIN teams T ON T.teamid=AR.teamid WHERE T.teamid=? ORDER BY PO.posid, P.playerid";
 	$rosterStatement = $conn->prepare($rosterQuery);
     $rosterStatement->execute(array($thisteam));
-    $faQuery = 'SELECT P.playerid, P.fname, P.mname, P.lname, P.age, PO.abbr FROM players P INNER JOIN playsposition PP ON PP.playerid=P.playerid INNER JOIN positions PO ON PO.posid=PP.posid WHERE P.playerid NOT IN (SELECT PF.playerid FROM playerfor PF WHERE PF.untildate IS NULL)';
+    $faQuery = 'SELECT P.playerid, P.fname, P.mname, P.lname, P.age, PO.abbr FROM players P INNER JOIN playsposition PP ON PP.playerid=P.playerid INNER JOIN positions PO ON PO.posid=PP.posid WHERE P.playerid NOT IN (SELECT AR.playerid FROM activeroster AR)';
     $faResults = $conn->query($faQuery);
     $faResults->setFetchMode(PDO::FETCH_ASSOC);
     $teamsQuery = 'SELECT * FROM teams ORDER BY city';
@@ -65,6 +65,24 @@ try {
                         <?php endwhile; ?>
                     </select>
                 </form>
+                <h4 class="subTitle">Rebrand</h4>
+                <form action="updateTeam.php" method="post" class="dataForm">
+                    <input type="hidden" name="teamid" value="<?php echo $thisteam ?>">
+                    <div class="row">
+                        <div class="col33">
+                            <p class="formLabel">New Name</p>
+                            <input class="dataInput" type="text" id="name" minlength="1" name="name" value="" required>
+                        </div>
+                        <div class="col33">
+                            <p class="formLabel">New City</p>
+                            <input class="dataInput" type="text" id="city" name="city" value="" required>
+                        </div>
+                        <div class="col33">
+                            <input class="formButton" type="submit" value="Rebrand">
+                        </div>
+                    </div>
+                </form>
+                <h4 class="subTitle">Active Roster</h4>
                 <div class="dataTable">
                     <div class="headerRow">
                         <span class="dataItem" style="flex:5%;">PlayerID</span>

@@ -26,28 +26,28 @@ $port = $conf['port'];
     <body>
 		<p>
 			<?php 
-				echo "Signing player: " . $_POST["playerid"] .  "..."; 
+				echo "Rebranding team " . $_POST["teamid"] . " to the : " . $_POST["city"] .  " " . $_POST["name"]; 
 				try {
 					// Create PDO
 					$conn = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $password);
 					$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 					// Attempt deletion from players
-					$sql = "INSERT INTO activeroster (playerid, teamid) VALUES (?, ?)";
+					$sql = "UPDATE teams SET name=?, city=? WHERE teamid=?";
 					$st = $conn->prepare($sql);
-					$st->execute(array($_POST["playerid"], $_POST["teamid"]));
-					echo "Successfully signed player";
+					$st->execute(array($_POST["name"], $_POST["city"], $_POST["teamid"]));
+					echo "<br><br>Rebrand and relocation successful!";
 			?>
 				<p>You will be redirected in 1 second</p>
 				<script>
 					var timer = setTimeout(function() {
 						window.location='teams.php'
-					}, 100);
+					}, 2000);
 				</script>
 			<?php
 				} catch(PDOException $e) {
 					// Rollback on failure
 					echo $sql . "<br>" . $e->getMessage();
-					echo '<a id="backButton" href="./home.php">Home</a>';
+					echo '<br><a id="backButton" href="./home.php">Home</a>';
 				}
 				$conn = null;
 			?>

@@ -32,9 +32,9 @@ $port = $conf['port'];
 					$conn = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $password);
 					$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 					// Attempt deletion from players
-					$sql = "UPDATE playerfor SET untildate=NOW() WHERE playerid=? AND teamid=?";
+					$sql = "DELETE FROM activeroster WHERE playerid=?";
 					$st = $conn->prepare($sql);
-					$st->execute(array($_POST["playerid"], $_POST["teamid"]));
+					$st->execute(array($_POST["playerid"]));
 					echo "Successfully released player";
 			?>
 				<p>You will be redirected in 1 second</p>
@@ -46,7 +46,6 @@ $port = $conf['port'];
 			<?php
 				} catch(PDOException $e) {
 					// Rollback on failure
-					$conn->rollBack();
 					echo $sql . "<br>" . $e->getMessage();
 					echo '<a id="backButton" href="./home.php">Home</a>';
 				}

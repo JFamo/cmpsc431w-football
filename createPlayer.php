@@ -39,7 +39,7 @@ $port = $conf['port'];
 					$st1->execute(array($_POST["fname"], $_POST["mname"], $_POST["lname"], $_POST["age"]));
 					$playerid = $conn->lastInsertId();
 					// Attempt to add team
-					$sql2 = "INSERT INTO playerfor (playerid, teamid, fromdate) VALUES (?, ?, NOW())";
+					$sql2 = "INSERT INTO activeroster (playerid, teamid) VALUES (?, ?)";
 					$st2 = $conn->prepare($sql2);
 					$st2->execute(array($playerid, $_POST["team"]));
 					// Attempt to add position

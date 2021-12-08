@@ -41,24 +41,12 @@ $port = $conf['port'];
 					$sql = "DELETE FROM playsposition WHERE playerid=?";
 					$st = $conn->prepare($sql);
 					$st->execute(array($_POST["playerid"]));
-					// Attempt deletion from playerfor
-					$sql = "DELETE FROM playerfor WHERE playerid=?";
+					// Attempt deletion from activeroster
+					$sql = "DELETE FROM activeroster WHERE playerid=?";
 					$st = $conn->prepare($sql);
 					$st->execute(array($_POST["playerid"]));
-					// Attempt deletion from stats
-					$sql = "DELETE FROM passing WHERE playerid=?";
-					$st = $conn->prepare($sql);
-					$st->execute(array($_POST["playerid"]));
-					$sql = "DELETE FROM rushing WHERE playerid=?";
-					$st = $conn->prepare($sql);
-					$st->execute(array($_POST["playerid"]));
-					$sql = "DELETE FROM receiving WHERE playerid=?";
-					$st = $conn->prepare($sql);
-					$st->execute(array($_POST["playerid"]));
-					$sql = "DELETE FROM defense WHERE playerid=?";
-					$st = $conn->prepare($sql);
-					$st->execute(array($_POST["playerid"]));
-					$sql = "DELETE FROM kicking WHERE playerid=?";
+					// Attempt deletion from games
+					$sql = "DELETE FROM gameroster WHERE playerid=?";
 					$st = $conn->prepare($sql);
 					$st->execute(array($_POST["playerid"]));
 					// Commit transaction

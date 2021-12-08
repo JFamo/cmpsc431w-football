@@ -34,7 +34,7 @@ try {
     <body style="background-image: url('beaver.jpg'); background-repeat:no-repeat; background-size:cover;"> 
     <div style="text-align:center; margin: 1rem 1rem 1rem 1rem;">
         <h1 id="mainTitle">Just Another Football Sim</h1>
-        <h4>By Joshua Famous, Cam Thorpe, Adam Levin</h4>
+        <h4 style="color:white;">By Joshua Famous, Cam Thorpe, Adam Levin</h4>
         <div class="menu">
             <a class="menuButton" href="./players.php">Players</a>
             <a class="menuButton" href="./teams.php">Teams</a>

@@ -14,7 +14,7 @@ $port = $conf['port'];
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $password);
-    $playersQuery = 'SELECT P.playerid, P.fname, P.mname, P.lname, PO.abbr, P.age FROM players P INNER JOIN playsposition PP ON PP.playerid=P.playerid INNER JOIN positions PO ON PO.posid=PP.posid';
+    $playersQuery = 'SELECT P.playerid, P.fname, P.mname, P.lname, PO.abbr, P.age FROM players P INNER JOIN playsposition PP ON PP.playerid=P.playerid INNER JOIN positions PO ON PO.posid=PP.posid ORDER BY lname, fname, playerid';
     $playersResults = $conn->query($playersQuery);
     $playersResults->setFetchMode(PDO::FETCH_ASSOC);
     $positionsQuery = 'SELECT * FROM positions';

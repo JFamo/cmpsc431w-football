@@ -141,6 +141,10 @@
     flex:50%;
 }
 
+.col33{
+    flex:33%;
+}
+
 .dataForm{
 
 }
