@@ -62,6 +62,11 @@ try {
                         this.playerid = playerid;
                         this.position = position;
                         this.lname = lname;
+                        this.stats = {};
+                        this.accel = 0.2;
+                        this.maxspeed = 2;
+                        this.xspeed = 0;
+                        this.yspeed = 0;
                     }
                     pos(){
                         return [this.x, this.y];
@@ -82,29 +87,111 @@ try {
                         return true;
                     }
                     move(dir){
+                        if(this.xspeed > this.maxspeed){
+                            this.xspeed = this.maxspeed;
+                        }
+                        if(this.xspeed < -this.maxspeed){
+                            this.xspeed = -this.maxspeed;
+                        }
+                        if(this.yspeed > this.maxspeed){
+                            this.yspeed = this.maxspeed;
+                        }
+                        if(this.yspeed < -this.maxspeed){
+                            this.yspeed = -this.maxspeed;
+                        }
                         if(dir == "up"){
-                            this.y -= 1;
+                            this.yspeed -= this.accel;
+                            this.y += this.yspeed;
                         }
                         if(dir == "down"){
-                            this.y += 1;
+                            this.yspeed += this.accel;
+                            this.y += this.yspeed;
                         }
+                        if(dir == "left"){
+                            this.xspeed -= this.accel;
+                            this.x += this.xspeed;
+                        }
+                        if(dir == "right"){
+                            this.xspeed += this.accel;
+                            this.x += this.xspeed;
+                        }
+                        if(dir == null){
+                            if(this.xspeed > 0){
+                                this.xspeed -= this.accel;
+                            }
+                            if(this.xspeed < 0){
+                                this.xspeed += this.accel;
+                            }
+                            if(this.yspeed > 0){
+                                this.yspeed -= this.accel;
+                            }
+                            if(this.yspeed < 0){
+                                this.yspeed += this.accel;
+                            }
+                        }
+                    }
+                    bench(){
+                        this.x = -1;
+                        this.y = -1;
                     }
                     setToBall(ball, offset){
                         this.x = ball[0] + offset[0];
                         this.y = ball[1] + offset[1];
                     }
+                    getStats(){
+                        return this.stats;
+                    }
+                    changeStat(stat, change){
+                        if(this.stats.hasOwnProperty(stat)){
+                            this.stats[stat] += change;
+                        }
+                        else{
+                            this.stats[stat] = change;
+                        }
+                    }
                 }
 
                 class GameState {
+                    positions = {"offense": {"qb":[0,50], "wr1":[200,10], "wr2":[-200,10], "hb":[10,40], "fb":[-10,40], "te":[35,10], "c":[0,5], "og1":[-10,5], "og2":[10,5], "ot1":[20,5], "ot2":[-20,5]},
+                                "defense": ["mlb", "olb", "olb", "de", "de", "dt", "dt", "ss", "fs", "cb", "cb"]};
                     constructor(){
-                        this.down = 0;
+                        this.down = 1;
                         this.distance = 100;
                         this.possession = "home";
                         this.awayscore = 0;
                         this.homescore = 0;
+                        this.ball = [0,0];
+                        this.lineofscrim = 0;
                     }
-                    setOffense(){
-                        
+                    setPlayers(set, team, players){
+                        for(let player of players){
+                            if(player.getTeam() == team){
+                                player.bench(); 
+                            }
+                        }
+                        for(let position in this.positions[set]){
+                            for(let player of players){
+                                if(player.getPosition() == position.replace(/\d+/g, '')){
+                                    if(!player.onField()){
+                                        player.setToBall(this.ball, this.positions[set][position]);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    resetDrive(players){
+                        this.ball = [250, 800];
+                        this.lineofscrim = 800;
+                        this.distance = 100;
+                        this.down = 1;
+                        this.setPlayers("offense", this.possession, players);
+                    }
+                    getLineOfScrimmage(){
+                        return [0, this.lineofscrim];
+                    }
+                    getFirstDown(){
+                        return [0, this.lineofscrim - this.distance];
                     }
                 }
 
@@ -120,15 +207,16 @@ try {
                 
                 // Setup positional objects
                 var players = [];
-                var p_ball = [250,200];
 
-                // Single possession setup
-                players.push(new Player("home", "qb", 1, "Jones"));
-                players.push(new Player("home", "ol", 2, "Bracken"));
-                players.push(new Player("home", "wr", 3, "Edwards"));
-                players.push(new Player("home", "hb", 4, "Weeden"));
-                players.push(new Player("away", "mlb", 5, "Sanders"));
-                players.push(new Player("away", "dline", 6, "Polick"));
+                // Setup players
+                <?php
+                    foreach($homeTeam as $player){
+                        echo 'players.push(new Player("home", "' . strtolower($player['abbr']) . '", ' . $player['playerid'] . ', "' . $player['lname'] . '"));';
+                    }
+                    foreach($awayTeam as $player){
+                        echo 'players.push(new Player("away", "' . strtolower($player['abbr']) . '", ' . $player['playerid'] . ', "' . $player['lname'] . '"));';
+                    }
+                ?>
 
                 // Setup game images
                 const aoline = document.getElementById('aoline');
@@ -142,19 +230,24 @@ try {
                 const awayImages = {"qb":askill,"fb":aoline,"hb":askill,"wr":askill,"og":aoline,"ot":aoline,"c":aoline,"te":askill,"dt":adline,"de":adline,"olb":asec,"mlb":asec,"fs":asec,"ss":asec,"cb":asec,"k":askill,"p":askill,"kr":askill,"pr":askill,"ls":aoline};
                 const homeImages = {"qb":hskill,"fb":holine,"hb":hskill,"wr":hskill,"og":holine,"ot":holine,"c":holine,"te":hskill,"dt":hdline,"de":hdline,"olb":hsec,"mlb":hsec,"fs":hsec,"ss":hsec,"cb":hsec,"k":hskill,"p":hskill,"kr":hskill,"pr":hskill,"ls":holine};
 
+                const playerWidth = 15;
+                const playerHeight = 15;
+
                 // Setup active player
                 var user = players[0];
 
-                for(let p in players){
-                    p.setToBall(p_ball, [(Math.random()-0.5)*50, (Math.random()-0.5)*5]);
-                }
+                console.log("Players " + JSON.stringify(players));
 
                 // Setup lines
                 var p_los = [0,50];
                 var p_fd = [0,150];
+
+                // Setup game state
+                var game = new GameState();
+                game.resetDrive(players);
                 
                 // Start game drawing cycle
-                var gameCycle = setInterval(draw, 100);
+                var gameCycle = setInterval(process, 100);
 
                 // Setup listeners
                 window.addEventListener("keydown", function(e) {
@@ -170,6 +263,12 @@ try {
                         case "s":
                             user.move("down");
                             break;
+                        case "a":
+                            user.move("left");
+                            break;
+                        case "d":
+                            user.move("right");
+                            break;
                         default:
                             break;
                     }
@@ -179,6 +278,17 @@ try {
                 // Function to convert game position to canvas position
                 function gpToCp(pos){
                     return [(pos[0] / fieldw) * cwidth, (pos[1] / fieldh) * cheight];
+                }
+
+                // Function to handle the game cycle
+                function process(){
+                    gameUpdate();
+                    draw();
+                }
+
+                // Function to handle updating the game each step
+                function gameUpdate(){
+                    user.move(null);
                 }
 
                 // Function to handle drawing the field onto the canvas
@@ -193,10 +303,10 @@ try {
                     // Draw lines
                     // Line of scrimmage
                     ctx.fillStyle = "#262926";
-                    ctx.fillRect(0,gpToCp(p_los)[1],cwidth,3);
+                    ctx.fillRect(0,gpToCp(game.getLineOfScrimmage())[1],cwidth,3);
                     // First down line
                     ctx.fillStyle = "#dbd809";
-                    ctx.fillRect(0,gpToCp(p_fd)[1],cwidth,3);
+                    ctx.fillRect(0,gpToCp(game.getFirstDown())[1],cwidth,3);
                     // Endzones
                     ctx.fillStyle = "#ffffff";
                     ctx.fillRect(0,gpToCp([0,fieldh-100])[1],cwidth,3);
@@ -205,16 +315,16 @@ try {
                     ctx.fillRect(0,0,3,cheight);
                     ctx.fillRect(gpToCp([fieldw-3,0]),0,3,cheight);
 
+                    // Set font
+                    ctx.font = "8px Arial";
+                    ctx.textAlign = "center";
+
                     // Draw players
                     players.forEach(drawPlayer);
                 }
 
                 // Function to draw an individual player
                 function drawPlayer(player, index){
-
-                    // DEBUG
-                    console.log("Drawing player " + player.getName());
-
                     if(player.onField()){
                         var thisImage;
                         var thisPos;
@@ -225,12 +335,16 @@ try {
                             thisImage = awayImages[player.getPosition()];
                         }
                         thisPos = gpToCp(player.pos());
-                        // DEBUG
-                        console.log("Got player at " + thisPos + " with image " + JSON.stringify(thisImage));
-                        ctx.drawImage(thisImage, thisPos[0], thisPos[1], 10, 10);
+                        if(user == player){
+                            ctx.beginPath();
+                            ctx.strokeStyle = "#06bf1e";
+                            ctx.arc(thisPos[0] + (playerWidth / 2), thisPos[1] + (playerHeight / 2), (playerWidth / 2) + 1, 0, 2 * Math.PI);
+                            ctx.stroke();
+                        }
+                        ctx.drawImage(thisImage, thisPos[0], thisPos[1], playerWidth, playerHeight);
+                        ctx.fillText(player.getName(), thisPos[0], thisPos[1] + 20);
                     }
                 }
-                
                 // Function to stop the game
                 function stop(){
                     clearInterval(gameCycle);
