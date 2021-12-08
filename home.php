@@ -40,6 +40,7 @@ try {
             <a class="menuButton" href="./teams.php">Teams</a>
             <a class="menuButton" href="./games.php">Games</a>
             <a class="menuButton" href="./stats.php">Stats</a>
+            <a class="menuButton" href="./play.php">Play</a>
         </div>
     </body>
     </div>
