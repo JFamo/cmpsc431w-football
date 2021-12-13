@@ -18,12 +18,18 @@ if(array_key_exists("teamid", $_POST)){
 else{
     $thisteam = 1;
 }
+if(array_key_exists("year", $_POST)){
+    $thisyear = $_POST["year"];
+}
+else{
+    $thisyear = "2021";
+}
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $password);
-    $gamesQuery = "SELECT * from games";
+    $gamesQuery = "SELECT G.gameid, G.hometeam, G.awayteam, G.kickoff, S.homescore, S.awayscore, T.name AS homename, T.city AS homecity, T2.name AS awayname, T2.city AS awaycity FROM games G LEFT JOIN scores S ON G.gameid=S.gameid INNER JOIN teams T ON T.teamid=G.hometeam INNER JOIN teams T2 ON T2.teamid=G.awayteam WHERE (G.hometeam=? OR G.awayteam=?) AND YEAR(G.kickoff)=?";
 	$gamesStatement = $conn->prepare($gamesQuery);
-    $gamesStatement->execute(array($thisteam));
+    $gamesStatement->execute(array($thisteam, $thisteam, $thisyear));
     $teamsQuery = 'SELECT * FROM teams ORDER BY city';
     $teamsResults = $conn->query($teamsQuery);
     $teamsResults->setFetchMode(PDO::FETCH_ASSOC);
@@ -64,38 +70,48 @@ try {
                 </form>
                 <form action="games.php" method="post">
                     <select onchange="this.form.submit()" class="dataInput" name="year" id="year" required>
-                        <?php while($team = $teamsResults->fetch()) : ?>
+                        <?php for($y = 2020; $y <= 2030; $y++){ ?>
                             <option value="<?php 
-                            echo htmlspecialchars($team['teamid']) . '"';
-                            if($thisteam == $team["teamid"]){
+                            echo $y . '"';
+                            if($thisyear == $y){
                                 echo "selected";
                             }
-                            ?>><?php echo htmlspecialchars($team['city']) . " " . htmlspecialchars($team['name'])?></option>
-                        <?php endwhile; ?>
+                            ?>><?php echo $y; ?></option>
+                        <?php } ?>
                     </select>
                 </form>
-                <h4 class="subTitle">Active Roster</h4>
+                <h4 class="subTitle">Schedule</h4>
                 <div class="dataTable">
                     <div class="headerRow">
-                        <span class="dataItem" style="flex:5%;">PlayerID</span>
-                        <span class="dataItem" style="flex:20%;">First</span>
-                        <span class="dataItem" style="flex:20%;">Middle</span>
-                        <span class="dataItem" style="flex:20%;">Last</span>
-                        <span class="dataItem" style="flex:15%;">Position</span>
-                        <span class="dataItem" style="flex:10%;">Age</span>
-                        <span class="dataItem" style="flex:10%;">Release</span>
+                        <span class="dataItem" style="flex:25%;">Away</span>
+                        <span class="dataItem" style="flex:25%;">Home</span>
+                        <span class="dataItem" style="flex:25%;">Kickoff</span>
+                        <span class="dataItem" style="flex:25%;">Result</span>
                     </div>
-                    <?php while ($player = $rosterStatement->fetch()): ?>
+                    <?php if($gamesStatement->rowCount() == 0){ ?>
+                        <span class="dataItem" style="flex:100%;">No Games Scheduled in <?php echo $thisyear; ?>!</span>
+                    <?php } else { while ($game = $gamesStatement->fetch()): ?>
                     <div class="dataRow">
-                        <span class="dataItem" style="flex:5%;"><?php echo htmlspecialchars($player['playerid']) ?></span>
-                        <span class="dataItem" style="flex:20%;"><?php echo htmlspecialchars($player['fname']) ?></span>
-                        <span class="dataItem" style="flex:20%;"><?php echo htmlspecialchars($player['mname']) ?></span>
-                        <span class="dataItem" style="flex:20%;"><?php echo htmlspecialchars($player['lname']) ?></span>
-                        <span class="dataItem" style="flex:15%;"><?php echo htmlspecialchars($player['abbr']) ?></span>
-                        <span class="dataItem" style="flex:10%;"><?php echo htmlspecialchars($player['age']) ?></span>
-                        <span class="dataItem" style="flex:10%;"><?php echo '<form action="/releasePlayer.php" method="post"><input class="deleteButton" type="submit" value="Release"><input type="hidden" name="teamid" value="' . $thisteam . '"><input type="hidden" name="playerid" value="' . htmlspecialchars($player['playerid']) . '"></form>'?></span>
+                        <span class="dataItem" style="flex:25%;"><?php echo $game['awaycity'] . ' ' . $game['awayname'] ?></span>
+                        <span class="dataItem" style="flex:25%;"><?php echo $game['homecity'] . ' ' . $game['homename'] ?></span>
+                        <span class="dataItem" style="flex:25%;"><?php echo $game['kickoff'] ?></span>
+                        <span class="dataItem" style="flex:25%;">
+                            <?php if(is_null($game['homescore'])){
+                                echo 'TBD';
+                            } else{
+                                if(intval($game['homescore']) > intval($game['awayscore'])){
+                                    echo $game['awayname'] . ' ' . $game['awayscore'] . ' - <b>' . $game['homename'] . ' ' . $game['homescore'] . '</b>';
+                                }
+                                else if(intval($game['homescore']) < intval($game['awayscore'])){
+                                    echo '<b>' . $game['awayname'] . ' ' . $game['awayscore'] . '</b> - ' . $game['homename'] . ' ' . $game['homescore'] . '';
+                                }
+                                else{
+                                    echo '' . $game['awayname'] . ' ' . $game['awayscore'] . '<b> - </b>' . $game['homename'] . ' ' . $game['homescore'] . '';
+                                }
+                            } ?>
+                        </span>
                     </div>
-                    <?php endwhile; ?>
+                    <?php endwhile; } ?>
                 </div>
             </div>
             <div class="col50">
