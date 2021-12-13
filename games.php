@@ -12,6 +12,13 @@ $host = $conf['host'];
 $dbname = $conf['dbname'];
 $port = $conf['port'];
 
+if(array_key_exists("teamid", $_POST)){
+    $thisteam = $_POST["teamid"];
+}
+else{
+    $thisteam = 1;
+}
+
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $password);
     $gamesQuery = "SELECT * from games";
@@ -43,7 +50,7 @@ try {
         <h1 id="mainTitle">Games</h1>
         <div class="row">
             <div class="col50" style="overflow-y:auto;">
-                <form action="teams.php" method="post">
+                <form action="games.php" method="post">
                     <select onchange="this.form.submit()" class="dataInput" name="teamid" id="teamid" required>
                         <?php while($team = $teamsResults->fetch()) : ?>
                             <option value="<?php 
@@ -55,22 +62,17 @@ try {
                         <?php endwhile; ?>
                     </select>
                 </form>
-                <h4 class="subTitle">Rebrand</h4>
-                <form action="updateTeam.php" method="post" class="dataForm">
-                    <input type="hidden" name="teamid" value="<?php echo $thisteam ?>">
-                    <div class="row">
-                        <div class="col33">
-                            <p class="formLabel">New Name</p>
-                            <input class="dataInput" type="text" id="name" minlength="1" name="name" value="" required>
-                        </div>
-                        <div class="col33">
-                            <p class="formLabel">New City</p>
-                            <input class="dataInput" type="text" id="city" name="city" value="" required>
-                        </div>
-                        <div class="col33">
-                            <input class="formButton" type="submit" value="Rebrand">
-                        </div>
-                    </div>
+                <form action="games.php" method="post">
+                    <select onchange="this.form.submit()" class="dataInput" name="year" id="year" required>
+                        <?php while($team = $teamsResults->fetch()) : ?>
+                            <option value="<?php 
+                            echo htmlspecialchars($team['teamid']) . '"';
+                            if($thisteam == $team["teamid"]){
+                                echo "selected";
+                            }
+                            ?>><?php echo htmlspecialchars($team['city']) . " " . htmlspecialchars($team['name'])?></option>
+                        <?php endwhile; ?>
+                    </select>
                 </form>
                 <h4 class="subTitle">Active Roster</h4>
                 <div class="dataTable">

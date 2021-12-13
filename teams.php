@@ -70,12 +70,12 @@ try {
                     <input type="hidden" name="teamid" value="<?php echo $thisteam ?>">
                     <div class="row">
                         <div class="col33">
-                            <p class="formLabel">New Name</p>
-                            <input class="dataInput" type="text" id="name" minlength="1" name="name" value="" required>
-                        </div>
-                        <div class="col33">
                             <p class="formLabel">New City</p>
                             <input class="dataInput" type="text" id="city" name="city" value="" required>
+                        </div>
+                        <div class="col33">
+                            <p class="formLabel">New Name</p>
+                            <input class="dataInput" type="text" id="name" minlength="1" name="name" value="" required>
                         </div>
                         <div class="col33">
                             <input class="formButton" type="submit" value="Rebrand">
