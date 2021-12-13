@@ -18,13 +18,25 @@ if(array_key_exists("teamid", $_POST)){
 else{
     $thisteam = 1;
 }
+if(array_key_exists("order", $_POST)){
+    $rosterorder = $_POST["order"];
+}
+else{
+    $rosterorder = "PO.posid";
+}
+if(array_key_exists("order2", $_POST)){
+    $faorder = $_POST["order2"];
+}
+else{
+    $faorder = "PO.posid";
+}
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $password);
-    $rosterQuery = "SELECT P.playerid, P.fname, P.mname, P.lname, PO.abbr, P.age, T.teamid FROM players P INNER JOIN playsposition PP ON PP.playerid=P.playerid INNER JOIN positions PO ON PO.posid=PP.posid INNER JOIN activeroster AR ON AR.playerid=P.playerid INNER JOIN teams T ON T.teamid=AR.teamid WHERE T.teamid=? ORDER BY PO.posid, P.playerid";
+    $rosterQuery = "SELECT P.playerid, P.fname, P.mname, P.lname, PO.abbr, P.age, T.teamid FROM players P INNER JOIN playsposition PP ON PP.playerid=P.playerid INNER JOIN positions PO ON PO.posid=PP.posid INNER JOIN activeroster AR ON AR.playerid=P.playerid INNER JOIN teams T ON T.teamid=AR.teamid WHERE T.teamid=? ORDER BY " . $rosterorder . ", P.playerid";
 	$rosterStatement = $conn->prepare($rosterQuery);
     $rosterStatement->execute(array($thisteam));
-    $faQuery = 'SELECT P.playerid, P.fname, P.mname, P.lname, P.age, PO.abbr FROM players P INNER JOIN playsposition PP ON PP.playerid=P.playerid INNER JOIN positions PO ON PO.posid=PP.posid WHERE P.playerid NOT IN (SELECT AR.playerid FROM activeroster AR)';
+    $faQuery = 'SELECT P.playerid, P.fname, P.mname, P.lname, P.age, PO.abbr FROM players P INNER JOIN playsposition PP ON PP.playerid=P.playerid INNER JOIN positions PO ON PO.posid=PP.posid WHERE P.playerid NOT IN (SELECT AR.playerid FROM activeroster AR) ORDER BY ' . $faorder . ', P.playerid';
     $faResults = $conn->query($faQuery);
     $faResults->setFetchMode(PDO::FETCH_ASSOC);
     $teamsQuery = 'SELECT * FROM teams ORDER BY city';
@@ -85,12 +97,12 @@ try {
                 <h4 class="subTitle">Active Roster</h4>
                 <div class="dataTable">
                     <div class="headerRow">
-                        <span class="dataItem" style="flex:5%;">PlayerID</span>
-                        <span class="dataItem" style="flex:20%;">First</span>
-                        <span class="dataItem" style="flex:20%;">Middle</span>
-                        <span class="dataItem" style="flex:20%;">Last</span>
-                        <span class="dataItem" style="flex:15%;">Position</span>
-                        <span class="dataItem" style="flex:10%;">Age</span>
+                        <span class="dataItem" style="flex:5%;"><form method="post"><input type="hidden" value="playerid" name="order"><input class="sortHeader" type="submit" value="ID"></form></span>
+                        <span class="dataItem" style="flex:20%;"><form method="post"><input type="hidden" value="fname" name="order"><input class="sortHeader" type="submit" value="First"></form></span>
+                        <span class="dataItem" style="flex:20%;"><form method="post"><input type="hidden" value="mname" name="order"><input class="sortHeader" type="submit" value="Middle"></form></span>
+                        <span class="dataItem" style="flex:20%;"><form method="post"><input type="hidden" value="lname" name="order"><input class="sortHeader" type="submit" value="Last"></form></span>
+                        <span class="dataItem" style="flex:15%;"><form method="post"><input type="hidden" value="PO.posid" name="order"><input class="sortHeader" type="submit" value="Position"></form></span>
+                        <span class="dataItem" style="flex:10%;"><form method="post"><input type="hidden" value="age" name="order"><input class="sortHeader" type="submit" value="Age"></form></span>
                         <span class="dataItem" style="flex:10%;">Release</span>
                     </div>
                     <?php while ($player = $rosterStatement->fetch()): ?>
@@ -110,12 +122,12 @@ try {
                 <h4 class="subTitle">Free Agents</h4>
                 <div class="dataTable">
                     <div class="headerRow">
-                        <span class="dataItem" style="flex:5%;">PlayerID</span>
-                        <span class="dataItem" style="flex:20%;">First</span>
-                        <span class="dataItem" style="flex:20%;">Middle</span>
-                        <span class="dataItem" style="flex:20%;">Last</span>
-                        <span class="dataItem" style="flex:15%;">Position</span>
-                        <span class="dataItem" style="flex:10%;">Age</span>
+                        <span class="dataItem" style="flex:5%;"><form method="post"><input type="hidden" value="playerid" name="order2"><input class="sortHeader" type="submit" value="ID"></form></span>
+                        <span class="dataItem" style="flex:20%;"><form method="post"><input type="hidden" value="fname" name="order2"><input class="sortHeader" type="submit" value="First"></form></span>
+                        <span class="dataItem" style="flex:20%;"><form method="post"><input type="hidden" value="mname" name="order2"><input class="sortHeader" type="submit" value="Middle"></form></span>
+                        <span class="dataItem" style="flex:20%;"><form method="post"><input type="hidden" value="lname" name="order2"><input class="sortHeader" type="submit" value="Last"></form></span>
+                        <span class="dataItem" style="flex:15%;"><form method="post"><input type="hidden" value="PO.posid" name="order2"><input class="sortHeader" type="submit" value="Position"></form></span>
+                        <span class="dataItem" style="flex:10%;"><form method="post"><input type="hidden" value="age" name="order2"><input class="sortHeader" type="submit" value="Age"></form></span>
                         <span class="dataItem" style="flex:10%;">Sign</span>
                     </div>
                     <?php while ($player = $faResults->fetch()): ?>

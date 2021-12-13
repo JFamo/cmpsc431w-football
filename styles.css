@@ -188,3 +188,13 @@
 .gameImage{
     display:none;
 }
+
+.sortHeader{
+    background:none;
+    border:none;
+    font-size:1rem;
+}
+
+.sortHeader:hover{
+    cursor:pointer;
+}
