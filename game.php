@@ -46,8 +46,7 @@ if(array_key_exists("gameid", $_POST)){
         // Handle simulating game
         try {
             // Setup vars
-            $homeScore = 0;
-            $awayScore = 0;
+            $score = array("home"=>0, "away"=>0);
             $offense = 'home';
             $defense = "away";
             $roster = array("home"=>array(), "away"=>array());
@@ -71,41 +70,211 @@ if(array_key_exists("gameid", $_POST)){
                     }
                 }
             }
+            function turnover(&$offense, &$defense){
+                $temp = $offense;
+                $offense = $defense;
+                $defense = $temp;
+            }
+
+            function getStat(&$player, $stat){
+                if(array_key_exists($stat, $player)){
+                    return $player[$stat];
+                }
+                else{
+                    return 0;
+                }
+            }
 
             // Iterate through plays of game
-            $plays = rand(50,80);
+            $plays = rand(45,75);
             for($play=0; $play<$plays; $play++){
                 // Decide play outcome
-                // Could be rush for x yards, pass for x yards, pass for TD, run for TD, sack, strip sack, pass for INT, run for FUMB, incomplete pass, FG make, FG miss
+                // Could be rush for x yards, pass for x yards, pass for TD, run for TD, sack, strip sack, punt, pass for INT, run for FUMB, incomplete pass, FG make, FG miss
                 $playChoice = rand(1,100);
-                if($playChoice < 10){ // Rush for x yards
-                    $yards = rand(-5,75);
-                    change_stat($roster, "HB", $offense, "rushing", $yards);
+                if($playChoice < 15){ // Rush for x yards
+                    $yards = rand(-15,75);
+                    if(rand(1,10) < 9){
+                        change_stat($roster, "HB", $offense, "rushing", $yards);
+                        change_stat($roster, "HB", $offense, "carries", 1);
+                    }
+                    else{
+                        change_stat($roster, "FB", $offense, "rushing", $yards);
+                        change_stat($roster, "FB", $offense, "carries", 1);
+                    }
                     change_stat($roster, "MLB", $defense, "tackles", 1);
                     if($yards < 0){
                         change_stat($roster, "MLB", $defense, "tacklesforloss", 1);
                     }
                 }
-                else if($playChoice < 20){ // pass for x yards
-                    $yards = rand(-5,75);
-                    change_stat($roster, "WR", $offense, "receiving", $yards);
+                else if($playChoice < 40){ // pass for x yards
+                    $yards = rand(-15,75);
+                    if(rand(1,10) < 7){
+                        change_stat($roster, "WR", $offense, "receiving", $yards);
+                        change_stat($roster, "WR", $offense, "targets", 1);
+                        change_stat($roster, "WR", $offense, "receptions", 1);
+                    }
+                    else{
+                        change_stat($roster, "TE", $offense, "receiving", $yards);
+                        change_stat($roster, "TE", $offense, "targets", 1);
+                        change_stat($roster, "TE", $offense, "receptions", 1);
+                    }
                     change_stat($roster, "QB", $offense, "passing", $yards);
                     change_stat($roster, "QB", $offense, "attempts", 1);
                     change_stat($roster, "QB", $offense, "completions", 1);
-                    change_stat($roster, "CB", $defense, "tackles", 1);
-                    if($yards < 0){
-                        change_stat($roster, "CB", $defense, "tacklesforloss", 1);
+                    if(rand(1,10) < 7){
+                        change_stat($roster, "CB", $defense, "tackles", 1);
+                        if($yards < 0){
+                            change_stat($roster, "CB", $defense, "tacklesforloss", 1);
+                        }
+                    }
+                    else{
+                        change_stat($roster, "SS", $defense, "tackles", 1);
+                        if($yards < 0){
+                            change_stat($roster, "SS", $defense, "tacklesforloss", 1);
+                        }
                     }
                 }
-                else if($playChoice < 30){ // incomplete pass
+                else if($playChoice < 50){ // incomplete pass
+                    change_stat($roster, "QB", $offense, "attempts", 1);
+                    if(rand(1,10) < 7){
+                        change_stat($roster, "WR", $offense, "targets", 1);
+                    }
+                    else{
+                        change_stat($roster, "TE", $offense, "targets", 1);
+                    }
+                }
+                else if($playChoice < 55){ // sack
+                    if(rand(1,10) < 5){
+                        change_stat($roster, "OLB", $defense, "sacks", 1);
+                        change_stat($roster, "OLB", $defense, "tackles", 1);
+                    }
+                    else{
+                        change_stat($roster, "DE", $defense, "sacks", 1);
+                        change_stat($roster, "OLB", $defense, "tackles", 1);
+                    }
+                }
+                else if($playChoice < 60){ // strip sack
+                    if(rand(1,10) < 5){
+                        change_stat($roster, "OLB", $defense, "sacks", 1);
+                        change_stat($roster, "OLB", $defense, "tackles", 1);
+                        change_stat($roster, "OLB", $defense, "forcedfumbles", 1);
+                    }
+                    else{
+                        change_stat($roster, "DE", $defense, "sacks", 1);
+                        change_stat($roster, "DE", $defense, "tackles", 1);
+                        change_stat($roster, "DE", $defense, "forcedfumbles", 1);
+                    }
+                    turnover($offense, $defense);
+                }
+                else if($playChoice < 65){ // punt
+                    turnover($offense, $defense);
+                }
+                else if($playChoice < 70){ // interception
+                    if(rand(1,10) < 5){
+                        change_stat($roster, "CB", $defense, "interceptions", 1);
+                    }
+                    else{
+                        change_stat($roster, "FS", $defense, "interceptions", 1);
+                    }
+                    change_stat($roster, "QB", $offense, "pinterceptions", 1);
+                    change_stat($roster, "WR", $offense, "targets", 1);
+                    turnover($offense, $defense);
+                }
+                else if($playChoice < 75){ // rush fumble
+                    change_stat($roster, "DT", $defense, "forcedfumbles", 1);
+                    change_stat($roster, "HB", $offense, "fumbles", 1);
+                    change_stat($roster, "HB", $offense, "carries", 1);
+                    turnover($offense, $defense);
+                }
+                else if($playChoice < 81){ // rushing TD
+                    $yards = rand(1,40);
+                    change_stat($roster, "HB", $offense, "rtouchdowns", 1);
+                    change_stat($roster, "HB", $offense, "carries", 1);
+                    change_stat($roster, "HB", $offense, "rushing", $yards);
+                    change_stat($roster, "K", $offense, "xpa", 1);
+                    $score[$offense] += 6;
+                    if(rand(1,10) < 10){
+                        change_stat($roster, "K", $offense, "xpm", 1);
+                        $score[$offense] += 1;
+                    }
+                    turnover($offense, $defense);
+                }
+                else if($playChoice < 89){ // receiving TD
+                    $yards = rand(1,40);
+                    change_stat($roster, "WR", $offense, "ctouchdowns", 1);
+                    change_stat($roster, "QB", $offense, "ptouchdowns", 1);
+                    change_stat($roster, "WR", $offense, "receiving", $yards);
+                    change_stat($roster, "WR", $offense, "targets", 1);
+                    change_stat($roster, "WR", $offense, "receptions", 1);
                     change_stat($roster, "QB", $offense, "attempts", 1);
                     change_stat($roster, "QB", $offense, "completions", 1);
-                    change_stat($roster, "CB", $defense, "tackles", 1);
-                    if($yards < 0){
-                        change_stat($roster, "CB", $defense, "tacklesforloss", 1);
+                    change_stat($roster, "QB", $offense, "passing", $yards);
+                    change_stat($roster, "K", $offense, "xpa", 1);
+                    $score[$offense] += 6;
+                    if(rand(1,10) < 10){
+                        change_stat($roster, "K", $offense, "xpm", 1);
+                        $score[$offense] += 1;
                     }
+                    turnover($offense, $defense);
+                }
+                else if($playChoice < 96){ // made FG
+                    $yards = rand(1,65);
+                    change_stat($roster, "K", $offense, "tries", 1);
+                    change_stat($roster, "K", $offense, "makes", 1);
+                    change_stat($roster, "K", $offense, "longest", $yards);
+                    $score[$offense] += 3;
+                    turnover($offense, $defense);
+                }
+                else { // missed FG
+                    change_stat($roster, "K", $offense, "tries", 1);
+                    turnover($offense, $defense);
                 }
             }
+
+            // Add all player stats
+            $conn->beginTransaction();
+            foreach(['home', 'away'] as $team){
+                foreach($roster[$team] as $pos => $homePlayer){
+
+                    // Add to gameroster
+                    $rosterQuery = "INSERT INTO gameroster (gameid, playerid, teamid) VALUES (?,?,?)";
+                    $rosterStatement = $conn->prepare($rosterQuery);
+                    $rosterStatement->execute(array($_POST['gameid'], $homePlayer['playerid'], $_POST[$team]));
+                    $perfid = $conn->lastInsertId();
+
+                    // Add to passing
+                    $statQuery = "INSERT INTO passing (performanceid, yards, attempts, completions, touchdowns, interceptions) VALUES (?,?,?,?,?,?)";
+                    $statStatement = $conn->prepare($statQuery);
+                    $statStatement->execute(array($perfid, getStat($homePlayer, 'passing'), getStat($homePlayer, 'attempts'), getStat($homePlayer, 'completions'), getStat($homePlayer, 'ptouchdowns'), getStat($homePlayer, 'pinterceptions')));
+                
+                    // Add to rushing
+                    $statQuery = "INSERT INTO rushing (performanceid, yards, carries, touchdowns, fumbles) VALUES (?,?,?,?,?)";
+                    $statStatement = $conn->prepare($statQuery);
+                    $statStatement->execute(array($perfid, getStat($homePlayer, 'rushing'), getStat($homePlayer, 'carries'), getStat($homePlayer, 'rtouchdowns'), getStat($homePlayer, 'fumbles')));
+
+                    // Add to receiving
+                    $statQuery = "INSERT INTO receiving (performanceid, yards, receptions, touchdowns, targets) VALUES (?,?,?,?,?)";
+                    $statStatement = $conn->prepare($statQuery);
+                    $statStatement->execute(array($perfid, getStat($homePlayer, 'receiving'), getStat($homePlayer, 'receptions'), getStat($homePlayer, 'ctouchdowns'), getStat($homePlayer, 'targets')));
+
+                    // Add to kicking
+                    $statQuery = "INSERT INTO kicking (performanceid, makes, tries, longest, xpa, xpm) VALUES (?,?,?,?,?,?)";
+                    $statStatement = $conn->prepare($statQuery);
+                    $statStatement->execute(array($perfid, getStat($homePlayer, 'makes'), getStat($homePlayer, 'tries'), getStat($homePlayer, 'longest'), getStat($homePlayer, 'xpa'), getStat($homePlayer, 'xpm')));
+                    
+                    // Add to defense
+                    $statQuery = "INSERT INTO defense (performanceid, tackles, tacklesforloss, sacks, forcedfumbles, interceptions) VALUES (?,?,?,?,?,?)";
+                    $statStatement = $conn->prepare($statQuery);
+                    $statStatement->execute(array($perfid, getStat($homePlayer, 'tackles'), getStat($homePlayer, 'tacklesforloss'), getStat($homePlayer, 'sacks'), getStat($homePlayer, 'forcedfumbles'), getStat($homePlayer, 'interceptions')));
+                    
+                }
+            }
+            // Add game score
+            $rosterQuery = "INSERT INTO scores (gameid, homescore, awayscore) VALUES (?,?,?)";
+            $rosterStatement = $conn->prepare($rosterQuery);
+            $rosterStatement->execute(array($_POST['gameid'], $score['home'], $score['away']));
+
+            $conn->commit();
 
             ?>
             <style>
@@ -113,7 +282,7 @@ if(array_key_exists("gameid", $_POST)){
             </style>
             <?php
 
-            echo "<div class='row'><div class='col50'><h3>Home</h3>";
+            echo "<div class='row'><div class='col50'><h3>Home - " . $score['home'] . "</h3>";
             foreach($roster['home'] as $pos => $homePlayer){
                 echo "<p>" . $pos . " " . $homePlayer['fname'] . " " . $homePlayer['lname'] . ' </p>';
                 foreach($homePlayer as $stat => $value){
@@ -123,7 +292,7 @@ if(array_key_exists("gameid", $_POST)){
                 }
             }
 
-            echo "</div><div class='col50'><h3>Away</h3>";
+            echo "</div><div class='col50'><h3>Away - " . $score['away'] . "</h3>";
             foreach($roster['away'] as $pos => $awayPlayer){
                 echo "<p>" . $pos . " " . $awayPlayer['fname'] . " " . $awayPlayer['lname'] . ' </p>';
                 foreach($awayPlayer as $stat => $value){
@@ -135,6 +304,7 @@ if(array_key_exists("gameid", $_POST)){
             echo "</div></div>";
 
         } catch (PDOException $e) {
+            $conn->rollBack();
             die("Could not connect to the database $dbname :" . $e->getMessage());
         }
 
