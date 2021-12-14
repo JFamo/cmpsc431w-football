@@ -65,7 +65,10 @@ try {
                         <span class="dataItem" style="flex:10%;">Delete</span>
                     </div>
                     <?php while ($player = $playersResults->fetch()): ?>
-                    <div class="dataRow">
+                    <form id="playerForm<?php echo $player['playerid'] ?>" action="/playerPage.php" method="post">
+                        <input type="hidden" name="playerid" value="<?php echo $player['playerid'] ?>">
+                    </form>
+                    <div class="dataRow" style="cursor:pointer;" onclick="document.getElementById('playerForm<?php echo htmlspecialchars($player['playerid']) ?>').submit();">
                         <span class="dataItem" style="flex:5%;"><?php echo htmlspecialchars($player['playerid']) ?></span>
                         <span class="dataItem" style="flex:20%;"><?php echo htmlspecialchars($player['fname']) ?></span>
                         <span class="dataItem" style="flex:20%;"><?php echo htmlspecialchars($player['mname']) ?></span>
