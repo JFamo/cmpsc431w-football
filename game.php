@@ -12,6 +12,138 @@ $host = $conf['host'];
 $dbname = $conf['dbname'];
 $port = $conf['port'];
 
+$skipAll = false;
+
+// Check for play or sim
+if(array_key_exists("gameid", $_POST)){
+
+    try {
+        $conn = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $password);
+
+        // Query for home and away teams
+        $teamsQuery = "SELECT * FROM games G WHERE G.gameid=?";
+        $teamsStatement = $conn->prepare($teamsQuery);
+        $teamsStatement->execute(array($_POST['gameid']));
+        $gameObj = $teamsStatement->fetch();
+        $_POST["home"] = $gameObj['hometeam'];
+        $_POST["away"] = $gameObj['awayteam'];
+
+        // Query for team rosters
+        $rosterQuery = "SELECT P.playerid, P.fname, P.mname, P.lname, PO.abbr, P.age, T.teamid FROM players P INNER JOIN playsposition PP ON PP.playerid=P.playerid INNER JOIN positions PO ON PO.posid=PP.posid INNER JOIN activeroster AR ON AR.playerid=P.playerid INNER JOIN teams T ON T.teamid=AR.teamid WHERE T.teamid=? ORDER BY PO.posid, P.playerid";
+        $rosterStatement = $conn->prepare($rosterQuery);
+        $rosterStatement->execute(array($_POST['home']));
+        $homeTeam = $rosterStatement->fetchAll();
+        $rosterStatement->execute(array($_POST['away']));
+        $awayTeam = $rosterStatement->fetchAll();
+
+    } catch (PDOException $e) {
+        die("Could not connect to the database $dbname :" . $e->getMessage());
+    }
+
+    if($_POST["option"] == "sim"){
+        $skipAll = true;
+
+        // Handle simulating game
+        try {
+            // Setup vars
+            $homeScore = 0;
+            $awayScore = 0;
+            $offense = 'home';
+            $defense = "away";
+            $roster = array("home"=>array(), "away"=>array());
+
+            // Find rostered players
+            foreach($homeTeam as $homePlayer){
+                $roster['home'][$homePlayer['abbr']] = array("fname"=>$homePlayer['fname'], "lname"=>$homePlayer['lname'], "playerid"=>$homePlayer['playerid']);
+            }
+            foreach($awayTeam as $awayPlayer){
+                $roster['away'][$awayPlayer['abbr']] = array("fname"=>$awayPlayer['fname'], "lname"=>$awayPlayer['lname'], "playerid"=>$awayPlayer['playerid']);
+            }
+
+            // Define functions
+            function change_stat(&$roster, $player, $team, $stat, $change){
+                if(array_key_exists($player, $roster[$team])){
+                    if(array_key_exists($stat, $roster[$team][$player])){
+                        $roster[$team][$player][$stat] += $change;
+                    }
+                    else{
+                        $roster[$team][$player][$stat] = $change;
+                    }
+                }
+            }
+
+            // Iterate through plays of game
+            $plays = rand(50,80);
+            for($play=0; $play<$plays; $play++){
+                // Decide play outcome
+                // Could be rush for x yards, pass for x yards, pass for TD, run for TD, sack, strip sack, pass for INT, run for FUMB, incomplete pass, FG make, FG miss
+                $playChoice = rand(1,100);
+                if($playChoice < 10){ // Rush for x yards
+                    $yards = rand(-5,75);
+                    change_stat($roster, "HB", $offense, "rushing", $yards);
+                    change_stat($roster, "MLB", $defense, "tackles", 1);
+                    if($yards < 0){
+                        change_stat($roster, "MLB", $defense, "tacklesforloss", 1);
+                    }
+                }
+                else if($playChoice < 20){ // pass for x yards
+                    $yards = rand(-5,75);
+                    change_stat($roster, "WR", $offense, "receiving", $yards);
+                    change_stat($roster, "QB", $offense, "passing", $yards);
+                    change_stat($roster, "QB", $offense, "attempts", 1);
+                    change_stat($roster, "QB", $offense, "completions", 1);
+                    change_stat($roster, "CB", $defense, "tackles", 1);
+                    if($yards < 0){
+                        change_stat($roster, "CB", $defense, "tacklesforloss", 1);
+                    }
+                }
+                else if($playChoice < 30){ // incomplete pass
+                    change_stat($roster, "QB", $offense, "attempts", 1);
+                    change_stat($roster, "QB", $offense, "completions", 1);
+                    change_stat($roster, "CB", $defense, "tackles", 1);
+                    if($yards < 0){
+                        change_stat($roster, "CB", $defense, "tacklesforloss", 1);
+                    }
+                }
+            }
+
+            ?>
+            <style>
+            <?php include './styles.css'; ?>
+            </style>
+            <?php
+
+            echo "<div class='row'><div class='col50'><h3>Home</h3>";
+            foreach($roster['home'] as $pos => $homePlayer){
+                echo "<p>" . $pos . " " . $homePlayer['fname'] . " " . $homePlayer['lname'] . ' </p>';
+                foreach($homePlayer as $stat => $value){
+                    if(!($stat == "fname" || $stat == "lname" || $stat == "playerid")){
+                        echo "<span style='padding-left:10px;'>" . $stat . ' - ' . $value . "</span>";
+                    }
+                }
+            }
+
+            echo "</div><div class='col50'><h3>Away</h3>";
+            foreach($roster['away'] as $pos => $awayPlayer){
+                echo "<p>" . $pos . " " . $awayPlayer['fname'] . " " . $awayPlayer['lname'] . ' </p>';
+                foreach($awayPlayer as $stat => $value){
+                    if(!($stat == "fname" || $stat == "lname" || $stat == "playerid")){
+                        echo "<span style='padding-left:10px;'>" . $stat . ' - ' . $value . "</span>";
+                    }
+                }
+            }
+            echo "</div></div>";
+
+        } catch (PDOException $e) {
+            die("Could not connect to the database $dbname :" . $e->getMessage());
+        }
+
+    }
+
+}
+
+if(! $skipAll){
+// Handle free play
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username, $password);
     $rosterQuery = "SELECT P.playerid, P.fname, P.mname, P.lname, PO.abbr, P.age, T.teamid FROM players P INNER JOIN playsposition PP ON PP.playerid=P.playerid INNER JOIN positions PO ON PO.posid=PP.posid INNER JOIN activeroster AR ON AR.playerid=P.playerid INNER JOIN teams T ON T.teamid=AR.teamid WHERE T.teamid=? ORDER BY PO.posid, P.playerid";
@@ -355,3 +487,4 @@ try {
     </div>
 </div>
 </html>
+<?php } ?>

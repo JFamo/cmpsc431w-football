@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -13,13 +15,20 @@ $dbname = $conf['dbname'];
 $port = $conf['port'];
 
 if(array_key_exists("teamid", $_POST)){
-    $thisteam = $_POST["teamid"];
+    $_SESSION["gamesteamid"] = $_POST["teamid"];
+}
+if(array_key_exists("gamesteamid", $_SESSION)){
+    $thisteam = $_SESSION["gamesteamid"];
 }
 else{
     $thisteam = 1;
 }
+
 if(array_key_exists("year", $_POST)){
-    $thisyear = $_POST["year"];
+    $_SESSION["gamesyear"] = $_POST["year"];
+}
+if(array_key_exists("gamesyear", $_SESSION)){
+    $thisyear = $_SESSION["gamesyear"];
 }
 else{
     $thisyear = "2021";

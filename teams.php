@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -13,7 +15,10 @@ $dbname = $conf['dbname'];
 $port = $conf['port'];
 
 if(array_key_exists("teamid", $_POST)){
-    $thisteam = $_POST["teamid"];
+    $_SESSION["teamsteamid"] = $_POST["teamid"];
+}
+if(array_key_exists("teamsteamid", $_SESSION)){
+    $thisteam = $_SESSION["teamsteamid"];
 }
 else{
     $thisteam = 1;
