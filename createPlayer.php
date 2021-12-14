@@ -41,15 +41,20 @@ $port = $conf['port'];
 					// Attempt to add team
 					$teamq = "SELECT * FROM teams WHERE teamid = ?";
 					$teamq = $conn->prepare($teamq);
-					$teamqResults->execute(array($_POST['teamid']));
-					if ($teamqResults->rowCount() == 0) {
-						throw new Exception("Invalid TeamID");
+					$teamq->execute(array($_POST['team']));
+					if ($teamq->rowCount() == 0) {
+						throw new PDOException("Invalid TeamID");
 					}
-
 					$sql2 = "INSERT INTO activeroster (playerid, teamid) VALUES (?, ?)";
 					$st2 = $conn->prepare($sql2);
 					$st2->execute(array($playerid, $_POST["team"]));
 					// Attempt to add position
+					$posq = "SELECT * FROM positions WHERE posid = ?";
+					$posq = $conn->prepare($posq);
+					$posq->execute(array($_POST['position']));
+					if ($posq->rowCount() == 0) {
+						throw new PDOException("Invalid PositionID");
+					}
 					$sql3 = "INSERT INTO playsposition (playerid, posid) VALUES (?, ?)";
 					$st3 = $conn->prepare($sql3);
 					$st3->execute(array($playerid, $_POST["position"]));
@@ -67,8 +72,9 @@ $port = $conf['port'];
 				} catch(PDOException $e) {
 					// Rollback on failure
 					$conn->rollBack();
-					echo $sql . "<br>" . $e->getMessage();
-					echo '<a id="backButton" href="./home.php">Home</a>';
+					echo "<div style='text-align:center;'>";
+					echo "<br>" . $e->getMessage();
+					echo '<a id="backButton" href="./home.php">Home</a></div>';
 				}
 				$conn = null;
 			?>
