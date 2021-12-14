@@ -282,7 +282,7 @@ if(array_key_exists("gameid", $_POST)){
             </style>
             <?php
 
-            echo "<div class='row'><div class='col50'><h3>Home - " . $score['home'] . "</h3>";
+            echo "<div style='width:100%;margin:2rem;'><a class='menuButton' style='margin:2rem;' href='./games.php'>Return</a></div><div class='row'><div class='col50'><h3>Home - " . $score['home'] . "</h3>";
             foreach($roster['home'] as $pos => $homePlayer){
                 echo "<p>" . $pos . " " . $homePlayer['fname'] . " " . $homePlayer['lname'] . ' </p>';
                 foreach($homePlayer as $stat => $value){
