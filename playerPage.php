@@ -31,6 +31,21 @@ try {
     AND PL.playerID = ?';
     $statsResults = $conn->prepare($statsQuery);
     $statsResults->execute(array($thisplayer));
+    $careerQuery = 'SELECT PL.playerid, SUM(Pass.yards) AS pyards, SUM(Pass.attempts) AS attempts, SUM(Pass.completions) AS completions, SUM(Pass.touchdowns) AS ptouchdowns, 
+    SUM(Pass.interceptions) AS pinterceptions, SUM(Rush.yards) AS ryards, SUM(Rush.carries) AS carries, SUM(Rush.touchdowns) AS rtouchdowns, SUM(Rush.fumbles) AS fumbles,
+    SUM(Receive.yards) AS cyards, SUM(Receive.receptions) AS receptions, SUM(Receive.touchdowns) AS ctouchdowns, SUM(Receive.targets) AS targets, SUM(Kick.makes) AS makes,
+    SUM(Kick.tries) AS tries, MAX(Kick.longest) AS longest, SUM(Kick.xpa) AS xpa, SUM(Kick.xpm) AS xpm, SUM(Def.tackles) AS tackles, SUM(Def.tacklesforloss) AS tacklesforloss,
+    SUM(Def.sacks) AS sacks, SUM(Def.forcedfumbles) AS forcedfumbles, SUM(Def.interceptions) AS interceptions
+    FROM players PL, gameroster GR, games G, passing Pass, rushing Rush, receiving Receive, kicking Kick, defense Def WHERE  G.gameID = GR.gameID
+    AND PL.playerID = GR.playerID
+    AND GR.performanceID = Def.performanceID
+    AND GR.performanceID = Kick.performanceID
+    AND GR.performanceID = Receive.performanceID
+    AND GR.performanceID = Rush.performanceID
+    AND GR.performanceID = Pass.performanceID
+    AND PL.playerID = ?';
+    $careerRes = $conn->prepare($careerQuery);
+    $careerRes->execute(array($thisplayer));
 
 } catch (PDOException $e) {
     die("Could not connect to the database $dbname :" . $e->getMessage());
@@ -66,7 +81,7 @@ try {
                 }
             ?>
         </div>
-        <h4 class="subTitle">History</h4>
+        <h4 class="subTitle">Games</h4>
         <div class="dataTable">
             <div class="headerRow">
                 <span class="dataItem" style="flex:8%;">Date</span>
@@ -97,6 +112,61 @@ try {
             <?php while ($game = $statsResults->fetch()): ?>
             <div class="dataRow">
                 <span class="dataItem" style="flex:8%;"><?php echo $game['kickoff'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['pyards'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['attempts'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['completions'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['ptouchdowns'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['pinterceptions'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['ryards'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['carries'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['rtouchdowns'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['fumbles'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['cyards'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['targets'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['receptions'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['ctouchdowns'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['makes'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['tries'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['longest'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['xpa'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['xpm'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['tackles'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['tacklesforloss'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['sacks'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['forcedfumbles'];?></span>
+                <span class="dataItem" style="flex:4%;"><?php echo $game['interceptions'];?></span>
+            </div>
+            <?php endwhile; ?>
+        </div>
+        <h4 class="subTitle">Career</h4>
+        <div class="dataTable">
+            <div class="headerRow">
+                <span class="dataItem" style="flex:4%;">PASS</span>
+                <span class="dataItem" style="flex:4%;">ATT</span>
+                <span class="dataItem" style="flex:4%;">CMP</span>
+                <span class="dataItem" style="flex:4%;">TDS</span>
+                <span class="dataItem" style="flex:4%;">INT</span>
+                <span class="dataItem" style="flex:4%;">RUSH</span>
+                <span class="dataItem" style="flex:4%;">CAR</span>
+                <span class="dataItem" style="flex:4%;">TDS</span>
+                <span class="dataItem" style="flex:4%;">FMB</span>
+                <span class="dataItem" style="flex:4%;">REC</span>
+                <span class="dataItem" style="flex:4%;">TAR</span>
+                <span class="dataItem" style="flex:4%;">CAT</span>
+                <span class="dataItem" style="flex:4%;">TDS</span>
+                <span class="dataItem" style="flex:4%;">MAKE</span>
+                <span class="dataItem" style="flex:4%;">TRY</span>
+                <span class="dataItem" style="flex:4%;">LONG</span>
+                <span class="dataItem" style="flex:4%;">XPA</span>
+                <span class="dataItem" style="flex:4%;">XPM</span>
+                <span class="dataItem" style="flex:4%;">TKL</span>
+                <span class="dataItem" style="flex:4%;">TFL</span>
+                <span class="dataItem" style="flex:4%;">SACK</span>
+                <span class="dataItem" style="flex:4%;">FF</span>
+                <span class="dataItem" style="flex:4%;">INT</span>
+            </div>
+            <?php while ($game = $careerRes->fetch()): ?>
+            <div class="dataRow">
                 <span class="dataItem" style="flex:4%;"><?php echo $game['pyards'];?></span>
                 <span class="dataItem" style="flex:4%;"><?php echo $game['attempts'];?></span>
                 <span class="dataItem" style="flex:4%;"><?php echo $game['completions'];?></span>
